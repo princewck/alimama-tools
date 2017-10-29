@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const path = require('path');
 const fetch = require('node-fetch');
 const fs = require('fs');
-const config = require('../../config.js');
+const config = require('../../config/config.js');
 const delay = require('../utils/delay');
 const syncXls = require('../service/products').uploadXls;
 
@@ -37,7 +37,13 @@ function getPage(key) {
   }) : Promise.resolve(browser))
     .then(bsr => {
       browser = bsr;
-      return Promise.resolve(pages[key] || bsr.newPage());
+      if (!pages[key]) {
+        return bsr.newPage()
+      }
+      return Promise.resolve(pages[key]);
+    })
+    .then((page) => {
+      return pages[key] = page;
     })
     .then(page => {
       return page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36').then(() => {
@@ -61,6 +67,18 @@ function getPage(key) {
         return page;
       });
     });
+}
+
+function newPage(key) {
+  return (!browser ? puppeteer.launch({
+    headless: false,
+    userDataDir: path.resolve(__dirname, './chrome'),
+    args: ['--disable-web-security'],
+    // dumpio: true,
+  }) : Promise.resolve(browser))
+  .then(b => {
+    return b.newPage();
+  });
 }
 
 
@@ -186,9 +204,11 @@ function sync(url) {
 
 
 module.exports = {
+  getPage,
   login,
   sync,
   syncDaily: sync.bind(null, DOWNLOAD_DAILY),
   sync1111:sync.bind(null, DOWNLOAD_1111),
-  refresh
+  refresh,
+  newPage
 }

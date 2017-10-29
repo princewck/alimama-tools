@@ -1,5 +1,5 @@
 const mysql = require('mysql');
-const configuration = require('../../config');
+const configuration = require('../../config/config');
 const pool = mysql.createPool(configuration.mysqlPoolConfig);
 
 function getAll(tableName) {

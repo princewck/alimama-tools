@@ -1,2 +1,5 @@
+config/config.js
+config/weibo.conf.json
 config.js
 node_modules
+*.xls

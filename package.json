@@ -9,11 +9,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "co": "^4.6.0",
     "cron": "^1.3.0",
+    "lodash": "^4.17.4",
+    "lodash-node": "^3.10.2",
     "moment": "^2.19.1",
     "mysql": "^2.15.0",
+    "nconf": "^0.8.5",
     "node-fetch": "^1.7.3",
     "node-xlsx": "^0.11.0",
-    "puppeteer": "^0.12.0"
+    "puppeteer": "^0.12.0",
+    "weiboer": "^1.0.1"
   }
 }

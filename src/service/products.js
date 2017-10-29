@@ -2,6 +2,7 @@ const xlsx = require('node-xlsx');
 const moment = require('moment');
 const mysql = require('../utils/mysql');
 const parser = require('../utils/parsers').parseProductsXLS;
+const _ = require('lodash');
 
 const getAll = mysql.getAll;
 
@@ -284,6 +285,53 @@ function exexQuery(sql) {
   });
 }
 
+function markPromoted(id) {
+  sql = `update product set promoted=true, promoted_at = now() where id = ${id}`;
+  console.log(sql);
+  return exexQuery(sql);
+}
+
+function markExpired(id) {
+  sql = `update product set status = 0 where id = ${id}`;
+  console.log(sql);
+  return exexQuery(sql);
+}
+
+function getProducts(brandIds, categoryIds, customCond, orderBy, limit) {
+  let sql = 'select * from product where';
+  let cond = 0;
+  if (brandIds && brandIds.length) {
+    sql += ` brand_id in (${_.compact(brandIds.map((b) => Number(b))).join(',')})`;
+    cond ++;
+  }
+  if (categoryIds && categoryIds.length) {
+    if (cond) sql += ' and';
+    sql += ` cid in (${_.compact(categoryIds.map((c) => Number(b))).join(',')})`;
+    cond ++;
+  }
+  if (customCond) {
+    if (cond) sql += ' and';
+    sql += ` ${customCond}`;
+    cond ++;
+  }
+  if (!cond) sql += ' 1';
+  if (orderBy && orderBy.length) {
+    sql += ' order by';
+    str = orderBy.map(rule => {
+      return ` ${rule[0]} ${rule[1] || 'desc'}`
+    }).join(',');
+    sql += str;
+  }
+  if (limit && limit.length === 2) {
+    sql += ` limit ${limit[0]},${limit[1]}`;
+  }
+  console.log(sql);
+  return exexQuery(sql);
+}
+
 module.exports = {
-  uploadXls
+  uploadXls,
+  list: getProducts,
+  markPromoted: markPromoted,
+  markExpired: markExpired
 }
