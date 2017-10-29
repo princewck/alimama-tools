@@ -9,6 +9,9 @@ const syncXls = require('../service/products').uploadXls;
 const { username: USERNAME, password: PASSWORD, addzone, siteid } = config.alimamaConfig || {};
 const LOGIN_URL = 'https://login.taobao.com/member/login.jhtml?style=mini&newMini2=true&from=alimama&redirectURL=http%3A%2F%2Flogin.taobao.com%2Fmember%2Ftaobaoke%2Flogin.htm%3Fis_login%3d1&full_redirect=true&disableQuickLogin=true';
 
+const DOWNLOAD_1111 = 'https://pub.alimama.com/operator/tollbox/excelDownload.json?excelId=TMALL_618_HOT_LIST&adzoneId=92230524&siteId=25192759';
+const DOWNLOAD_DAILY = 'https://pub.alimama.com/coupon/qq/export.json?adzoneId=92230524&siteId=25192759';
+
 let browser = null;
 const pages = {
   alimama_login: null,
@@ -140,7 +143,7 @@ function refresh() {
   });
 }
 
-function syncDaily() {
+function sync(url) {
   let page = null;
   return getPage('sync_daily').then(p => {
     return page = p;
@@ -157,7 +160,7 @@ function syncDaily() {
   .then((c) => {
     const cookie = c.map(cookie => (`${cookie.name}=${cookie.value}`)).join('; ');
     if (!cookie) return Promise.reject('cookie is empty');
-    fetch('https://pub.alimama.com/coupon/qq/export.json?adzoneId=92230524&siteId=25192759', {
+    fetch(url, {
       method: 'GET',
       headers: {
         cookie: cookie,
@@ -165,7 +168,7 @@ function syncDaily() {
         'accept-encoding': 'gzip, deflate, br'
       }
     }).then(res => {
-      const downloadPath = path.resolve(__dirname, './test2.xls');
+      const downloadPath = path.resolve(__dirname, './test'+ new Date().valueOf() +'.xls');
       const dest = fs.createWriteStream(downloadPath);
       console.log('检查登陆成功， 开始下载文件，预计10-60秒');
       const stream = res.body.pipe(dest);
@@ -181,8 +184,11 @@ function syncDaily() {
   });
 }
 
+
 module.exports = {
   login,
-  syncDaily,
+  sync,
+  syncDaily: sync.bind(null, DOWNLOAD_DAILY),
+  sync1111:sync.bind(null, DOWNLOAD_1111),
   refresh
 }

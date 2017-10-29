@@ -2,6 +2,7 @@ const cronJob = require('cron').CronJob;
 const alimama = require('../src/spider/alimma');
 
 const syncDaily = alimama.syncDaily;
+const sync1111 = alimama.sync1111;
 const refreshToken = alimama.refresh;
 
 alimama.login().then(() => {
@@ -20,4 +21,8 @@ alimama.login().then(() => {
     syncDaily();
   }, null, true, 'Asia/Chongqing');
 
+  new cronJob('00 */5 * * * * ', function () {
+    console.log('开始同步双11精选数据');
+    sync1111();
+  }, null, true, 'Asia/Chongqing');
 });
