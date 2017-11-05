@@ -8,6 +8,7 @@ const syncXls = require('../service/products').uploadXls;
 
 const { username: USERNAME, password: PASSWORD, addzone, siteid } = config.alimamaConfig || {};
 const LOGIN_URL = 'https://login.taobao.com/member/login.jhtml?style=mini&newMini2=true&from=alimama&redirectURL=http%3A%2F%2Flogin.taobao.com%2Fmember%2Ftaobaoke%2Flogin.htm%3Fis_login%3d1&full_redirect=true&disableQuickLogin=true';
+const TMALL_LOGIN_URL = 'https://login.taobao.com/member/login.jhtml?tpl_redirect_url=https%3A%2F%2Fsec.taobao.com%2Fquery.htm%3Faction%3DQueryAction%26event_submit_do_login%3Dok%26smApp%3Dmalldetailskip%26smPolicy%3Dmalldetailskip-init-anti_Spider-checklogin%26smCharset%3DGBK%26smTag%3DMTEyLjY1LjEuMTY5LCw5NjM5OTRiZmMzOTE0NTdkYTBhYjJiMTgxMWQyY2Q0ZA%253D%253D%26smReturn%3Dhttps%253A%252F%252Fdetail.tmall.com%252Fitem.htm%253Fid%253D535486069851%2526sm%253Dtrue%26smSign%3DfV6iU37RPD7cPnbks4R%252BIA%253D%253D&style=miniall&enup=true&newMini2=true&full_redirect=true&sub=true&from=tmall&allp=assets_css%3D3.0.10/login_pc.css&pms=1509871784449';
 
 const DOWNLOAD_1111 = 'https://pub.alimama.com/operator/tollbox/excelDownload.json?excelId=TMALL_618_HOT_LIST&adzoneId=92230524&siteId=25192759';
 const DOWNLOAD_DAILY = 'https://pub.alimama.com/coupon/qq/export.json?adzoneId=92230524&siteId=25192759';
@@ -82,12 +83,12 @@ function newPage(key) {
 }
 
 
-function login() {
+function login(url, successSelector) {
   let _page;
   return getPage('alimama_login')
   .then(page => {
     _page = page;
-    return page.goto(LOGIN_URL, {waitUntil: 'networkidle'});
+    return page.goto(url || LOGIN_URL, {waitUntil: 'networkidle'});
   })
   .then(delay.bind(null, 1000))
   .then(() => {
@@ -101,7 +102,7 @@ function login() {
     return delay(2000);
   })
   .then(() => {
-    return _page.waitForSelector('#J_menu_product', {
+    return _page.waitForSelector(successSelector || '#J_menu_product', {
       visible: true
     })
     .then(() => {
@@ -206,6 +207,7 @@ function sync(url) {
 module.exports = {
   getPage,
   login,
+  loginTmall: login.bind(null, TMALL_LOGIN_URL, '.j_Username'),
   sync,
   syncDaily: sync.bind(null, DOWNLOAD_DAILY),
   sync1111:sync.bind(null, DOWNLOAD_1111),
