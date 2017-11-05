@@ -18,7 +18,6 @@
     "nconf": "^0.8.5",
     "node-fetch": "^1.7.3",
     "node-xlsx": "^0.11.0",
-    "puppeteer": "^0.12.0",
-    "weiboer": "^1.0.1"
+    "puppeteer": "^0.12.0"
   }
 }
