@@ -48,9 +48,9 @@ async function publish(page, text, pictures) {
   if (pictures.length) {
     const fileInput = await page.$('input[multiple]');
     await fileInput.uploadFile(...pictures);   
-    await delay(2000);
+    await delay(10000);
     console.log('press Escape');
-    await page.keyboard.press('Escape');
+    await page.keyboard.press('Escape', {delay: 150});
   } else {
     console.log('没有图片， 跳过图片上传');
   }
@@ -62,12 +62,17 @@ async function publish(page, text, pictures) {
   for (let i=0; i < 4; i++) {
     await page.keyboard.press('Backspace');
   }
-  await page.type('textarea[title="微博输入框"]', (text || ''));
-  await delay(200);
+  await page.evaluate(text => {
+    let field = document.querySelector('textarea[title="微博输入框"]');
+    field && (field.value = text);
+  }, text);
+  await page.type('textarea[title="微博输入框"]', '.');
+  await delay(2000);
+  await page.waitForSelector('textarea[title="微博输入框"]', {waitUtil: 'networkidle'});
   const btn = await page.$('a[title="发布微博按钮"]');
   await btn.click();
-  await page.waitForSelector('.send_succpic', {visible: true, timeout: 10000});
-  await page.keyboard.press('Escape');
+  await page.waitForSelector('.send_succpic', {visible: true, timeout: 30000});
+  await page.keyboard.press('Escape', {delay: 150});
 }
 
 function checkLogin(page) {

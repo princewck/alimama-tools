@@ -123,10 +123,10 @@ function login(url, successSelector) {
       cookies.alimama = c;
       fs.writeFileSync(path.resolve(__dirname, 'cookie_wck'), JSON.stringify(c));
       return c;
-    })
-    .then((c) => {
-      // return _page.close();
     });
+    // .then((c) => {
+    //   // return _page.close();
+    // });
   });
 }
 
